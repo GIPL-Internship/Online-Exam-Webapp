@@ -59,17 +59,17 @@ $bg-primary-faded: #dfe7f3;
 }
 .navbar h1 {
   font-size: 1.5rem;
-  margin-left: 3.5rem;
+  margin-left: 6rem;
   font-weight: bold;
 }
 
 .navbaropen {
   //   background-color: #3b5998;
   overflow: hidden;
-  margin-left: 200px;
+  margin-left: 174px;
 }
-.navbar .nav-toggle {
-  margin-left: 32px;
+.navbaropen h1 {
+  margin-left: 8rem;
 }
 .navbar a {
   float: left;
@@ -121,7 +121,7 @@ $bg-primary-faded: #dfe7f3;
 
 .sidenavopen {
   height: 100%;
-  width: 250px;
+  width: fit-content;
   position: fixed;
   z-index: 1;
   top: 0;
@@ -139,7 +139,7 @@ $bg-primary-faded: #dfe7f3;
 }
 
 .side-nav a {
-  padding: 10px 8px 10px 8px;
+  padding: 10px 32px 10px 8px;
   text-decoration: none;
   font-size: 1rem;
   font-weight: bold;

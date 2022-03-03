@@ -22,11 +22,15 @@
               name="title"
               placeholder="Science, Commerce, Arts, Law"
             />
-            <div class="error-div" v-if="errMsg.title">
-              <span class="text-red-600"
-                ><i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </span>
-              <span class="text-red-600 p-1">{{ errMsg.title }}</span>
+            <div class="error-div" v-if="formErrors.title.length">
+              <p
+                class="text-red-600"
+                v-for="(err, idx) in formErrors.title"
+                :key="idx"
+              >
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <span class="text-red-600 p-1">{{ err.msg }}</span>
+              </p>
             </div>
           </div>
         </div>
@@ -41,11 +45,15 @@
               rows="10"
               placeholder="Main stream of law faculties"
             />
-            <div class="error-div" v-if="errMsg.details">
-              <span class="text-red-600"
-                ><i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </span>
-              <span class="text-red-600 p-1">{{ errMsg.details }}</span>
+            <div class="error-div" v-if="formErrors.details.length">
+              <p
+                class="text-red-600"
+                v-for="(err, idx) in formErrors.details"
+                :key="idx"
+              >
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <span class="text-red-600 p-1">{{ err.msg }}</span>
+              </p>
             </div>
           </div>
         </div>
@@ -73,21 +81,21 @@ export default {
       details: "",
       errMsg: [],
       formErrors: {
-        title: [{ id: 0, msg: "" }],
-        details: [{ id: 0, msg: "" }],
+        title: [],
+        details: [],
       },
     };
   },
-  watch: {
-    title(value) {
-      this.title = value;
-      this.validateTitle(value);
-    },
-    details(value) {
-      this.details = value;
-      this.validateDetails(value);
-    },
-  },
+  // watch: {
+  //   title(value) {
+  //     this.title = value;
+  //     this.validateTitle(value);
+  //   },
+  //   details(value) {
+  //     this.details = value;
+  //     this.validateDetails(value);
+  //   },
+  // },
   methods: {
     validateTitle(value) {
       let msg = "";
@@ -95,58 +103,77 @@ export default {
       if (value.length == 0) {
         msg = "Title cannot be empty";
         id = 1;
-        this.errMsg["title"] = msg;
+        // this.errMsg["title"] = msg;
         const found = this.formErrors["title"].some(function (value) {
           return value.id === id;
         });
         if (!found && msg) this.formErrors["title"].push({ id, msg });
-      } else if (value.length < 3) {
+      }
+      if (value.length < 3) {
+        let difference = 3 - value.length;
         msg =
           "Title Must be of minimum 3 characters! " +
           difference +
           " characters left";
-        let difference = 3 - value.length;
         id = 2;
-        this.errMsg["title"] = msg;
+        // this.errMsg["title"] = msg;
         const found = this.formErrors["title"].some(function (value) {
           return value.id === id;
         });
-        if (!found) this.formErrors["title"].push({ id, msg });
+        if (!found && msg) this.formErrors["title"].push({ id, msg });
         // this.errMsg["title"] = msg;
-        this.formErrors["title"].push(msg);
+        // this.formErrors["title"].push(msg);
       } else {
-        this.errMsg["title"] = "";
+        // this.errMsg["title"] = "";
         this.formErrors["title"] = [];
       }
     },
     validateDetails(value) {
       let msg = "";
+      let id=0
       if (value.length == 0) {
+        id = 1;
         msg = "Details cannot be empty";
-        this.errMsg["details"] = msg;
-        this.formErrors["details"].push(msg);
-      } else if (value.length < 8) {
+        const found = this.formErrors["details"].some(function (value) {
+          return value.id === id;
+        });
+        if (!found && msg) this.formErrors["details"].push({ id, msg });
+      } if (value.length < 8) {
+        let difference = 8 - value.length;
+        // this.errMsg["details"] = msg;
         msg =
           "Details Must be of minimum 8 characters! " +
           difference +
           " characters left";
-        let difference = 8 - value.length;
-        this.errMsg["details"] = msg;
-        this.formErrors["details"].push(msg);
+        id=2;
+        const found = this.formErrors["details"].some(function (value) {
+          return value.id === id;
+        });
+        if (!found && msg) this.formErrors["details"].push({ id, msg });
       } else {
-        this.errMsg["details"] = "";
+        // this.errMsg["details"] = "";
         this.formErrors["details"] = [];
       }
     },
+    resetErrors() {
+      this.formErrors = {
+        title: [],
+        details: [],
+      };
+    },
     createStream() {
+      this.resetErrors();
+      this.validateTitle(this.title);
+      this.validateDetails(this.details)
+      // this.$root.log(this.formErrors);
       const isTitleEmpty = this.title.length == 0;
       const isDetailsEmpty = this.details.length == 0;
-      if (isTitleEmpty) {
-        this.errMsg["title"] = "Title cannot be empty";
-      }
-      if (isDetailsEmpty) {
-        this.errMsg["details"] = "Details cannot be empty";
-      }
+      // if (isTitleEmpty) {
+      //   this.errMsg["title"] = "Title cannot be empty";
+      // }
+      // if (isDetailsEmpty) {
+      //   this.errMsg["details"] = "Details cannot be empty";
+      // }
       if (
         !isTitleEmpty &&
         !isDetailsEmpty &&
@@ -287,6 +314,10 @@ $bg-primary-header: #297fb9d3;
 }
 .input-container .input-field-select {
   width: 100%;
+}
+.error-div {
+  background-color: white;
+  padding: 4px 0;
 }
 @media screen and (max-width: 768px) {
   .stream-add-container {
