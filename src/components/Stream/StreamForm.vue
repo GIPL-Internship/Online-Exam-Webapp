@@ -9,7 +9,7 @@
       <h1 v-if="$route.params.id == null">Add Stream</h1>
       <h1 v-if="$route.params.id != null">Update Stream</h1>
     </div>
-    <div class="form-main">
+    <form class="form-main">
       <div class="input-div">
         <div class="input-container">
           <label class="input-label"
@@ -18,10 +18,27 @@
           <div class="input-field-container">
             <input
               type="text"
-              v-model="title"
+              v-model.trim="$v.title.$model"
+              class="form-control"
+              :class="{
+                'is-invalid': $v.title.$error,
+                'is-valid': !$v.title.$invalid,
+              }"
               name="title"
               placeholder="Science, Commerce, Arts, Law"
             />
+            <div class="valid-feedback">Title is valid</div>
+            <div class="invalid-feedback">
+              <p v-if="!$v.title.required">Title is required</p>
+              <p v-if="!$v.title.minLength">
+                Title must have at least
+                {{ $v.title.$params.minLength.min }} letters
+              </p>
+              <p v-if="!$v.title.maxLength">
+                Title must have at most
+                {{ $v.title.$params.maxLength.max }} letters
+              </p>
+            </div>
             <div class="error-div" v-if="formErrors.title.length">
               <p
                 class="text-red-600"
@@ -57,22 +74,48 @@
             </div>
           </div>
         </div>
-        <button
-          type="submit"
-          v-if="$route.params.id == null"
-          @click="createStream"
-        >
+        <button type="submit" v-if="$route.params.id == null">
           Create Stream
         </button>
-        <button v-if="$route.params.id != null" @click="updateStream">
-          Save Stream
-        </button>
+        <button v-if="$route.params.id != null">Save Stream</button>
       </div>
-    </div>
+    </form>
+    <!-- <form class="row g-3 needs-validation" @submit.prevent="submitForm">
+      <div class="col-md-8">
+        <label for="validationCustom01" class="form-label">First name</label>
+        <input
+          type="text"
+          class="form-control"
+          v-model.trim="$v.title.$model"
+          :class="{
+            'is-invalid': $v.title.$error,
+            'is-valid': !$v.title.$invalid,
+          }"
+          id="validationCustom01"
+          value="Mark"
+        />
+        <div class="valid-feedback alert alert-success">Title is valid</div>
+        <div class="invalid-feedback  alert alert-danger">
+          <p v-if="!$v.title.required">Title is required</p>
+          <p v-if="!$v.title.minLength">
+            Title must have at least
+            {{ $v.title.$params.minLength.min }} letters
+          </p>
+          <p v-if="!$v.title.maxLength">
+            Title must have at most {{ $v.title.$params.maxLength.max }} letters
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <button class="btn btn-primary" type="submit">Submit form</button>
+      </div>
+    </form> -->
   </div>
 </template>
 
 <script>
+import { required, minLength, maxLength } from "vuelidate/lib/validators";
 export default {
   name: "StreamAdd",
   data: () => {
@@ -85,6 +128,18 @@ export default {
         details: [],
       },
     };
+  },
+  validations: {
+    title: {
+      required,
+      minLength: minLength(3),
+      maxLength: maxLength(50),
+    },
+    details: {
+      required,
+      minLength: minLength(3),
+      maxLength: maxLength(500),
+    },
   },
   // watch: {
   //   title(value) {
@@ -130,7 +185,7 @@ export default {
     },
     validateDetails(value) {
       let msg = "";
-      let id=0
+      let id = 0;
       if (value.length == 0) {
         id = 1;
         msg = "Details cannot be empty";
@@ -138,14 +193,15 @@ export default {
           return value.id === id;
         });
         if (!found && msg) this.formErrors["details"].push({ id, msg });
-      } if (value.length < 8) {
+      }
+      if (value.length < 8) {
         let difference = 8 - value.length;
         // this.errMsg["details"] = msg;
         msg =
           "Details Must be of minimum 8 characters! " +
           difference +
           " characters left";
-        id=2;
+        id = 2;
         const found = this.formErrors["details"].some(function (value) {
           return value.id === id;
         });
@@ -164,7 +220,7 @@ export default {
     createStream() {
       this.resetErrors();
       this.validateTitle(this.title);
-      this.validateDetails(this.details)
+      this.validateDetails(this.details);
       // this.$root.log(this.formErrors);
       const isTitleEmpty = this.title.length == 0;
       const isDetailsEmpty = this.details.length == 0;
@@ -194,6 +250,9 @@ export default {
       ) {
         this.$root.log("Update API called");
       }
+    },
+    submitForm() {
+      this.$v.$touch();
     },
   },
   mounted() {
@@ -318,6 +377,19 @@ $bg-primary-header: #297fb9d3;
 .error-div {
   background-color: white;
   padding: 4px 0;
+}
+.valid-feedback {
+  // background-color: white;
+}
+.invalid-feedback {
+  // background-color: white;
+}
+p {
+  margin: 0 !important;
+}
+.alert {
+  margin: 0.5rem 0;
+  padding: 0.3rem 0.5rem;
 }
 @media screen and (max-width: 768px) {
   .stream-add-container {

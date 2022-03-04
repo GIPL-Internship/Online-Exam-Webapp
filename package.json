@@ -11,6 +11,7 @@
     "@mathieustan/vue-datepicker": "^0.2.11",
     "@tailwindcss/postcss7-compat": "^2.2.17",
     "autoprefixer": "^9",
+    "bootstrap": "^5.1.3",
     "core-js": "^3.8.3",
     "node-sass": "^7.0.1",
     "postcss": "^7",
@@ -19,7 +20,8 @@
     "vue": "^2.6.14",
     "vue-confirm-dialog": "^1.0.2",
     "vue-router": "^3.5.1",
-    "vue-select": "^3.18.3"
+    "vue-select": "^3.18.3",
+    "vuelidate": "^0.7.7"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
