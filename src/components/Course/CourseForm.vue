@@ -6,189 +6,415 @@
           <i class="fa fa-arrow-left" aria-hidden="true"></i>
         </router-link>
       </span>
-      <h1 v-if="$route.params.id == null">Add course</h1>
-      <h1 v-if="$route.params.id != null">Update course</h1>
+      <h1 v-if="$route.params.id == null">Add Course</h1>
+      <h1 v-if="$route.params.id != null">Update Course</h1>
     </div>
-    <div class="form-main">
+    <!-- <form class="form-main">
       <div class="input-div">
         <div class="input-container">
           <label class="input-label"
-            >Select stream<span class="text-red-600">*</span></label
-          >
-          <div class="input-field-container">
-            <auto-complete-input
-              class="input-field-select"
-              v-model="stream"
-              :dataList="['Science', 'Commerce', 'Arts']"
-            />
-            <div class="error-div" v-if="errMsg.stream">
-              <span class="text-red-600"
-                ><i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </span>
-              <span class="text-red-600 p-1">{{ errMsg.stream }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="input-container">
-          <label class="input-label"
-            >Enter title of course<span class="text-red-600">*</span></label
+            >Enter title of stream<span class="text-red-600">*</span></label
           >
           <div class="input-field-container">
             <input
               type="text"
-              v-model="title"
+              v-model.trim="$v.title.$model"
+              class="form-control"
+              :class="{
+                'is-invalid': $v.title.$error,
+                'is-valid': !$v.title.$invalid,
+              }"
               name="title"
-              placeholder="BSc, BCom, MA"
+              placeholder="Science, Commerce, Arts, Law"
             />
-            <div class="error-div" v-if="errMsg.title">
-              <span class="text-red-600"
-                ><i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </span>
-              <span class="text-red-600 p-1">{{ errMsg.title }}</span>
+            <div class="valid-feedback">Title is valid</div>
+            <div class="invalid-feedback">
+              <p v-if="!$v.title.required">Title is required</p>
+              <p v-if="!$v.title.minLength">
+                Title must have at least
+                {{ $v.title.$params.minLength.min }} letters
+              </p>
+              <p v-if="!$v.title.maxLength">
+                Title must have at most
+                {{ $v.title.$params.maxLength.max }} letters
+              </p>
+            </div>
+            <div class="error-div" v-if="formErrors.title.length">
+              <p
+                class="text-red-600"
+                v-for="(err, idx) in formErrors.title"
+                :key="idx"
+              >
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <span class="text-red-600 p-1">{{ err.msg }}</span>
+              </p>
             </div>
           </div>
         </div>
         <div class="input-container">
           <label class="input-label"
-            >Enter details of course<span class="text-red-600">*</span></label
+            >Enter details of stream<span class="text-red-600">*</span></label
           >
           <div class="input-field-container">
             <textarea
               v-model="details"
               name="details"
               rows="10"
-              placeholder="Masters degree in law"
+              placeholder="Main stream of law faculties"
             />
-            <div class="error-div" v-if="errMsg.details">
-              <span class="text-red-600"
-                ><i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </span>
-              <span class="text-red-600 p-1">{{ errMsg.details }}</span>
+            <div class="error-div" v-if="formErrors.details.length">
+              <p
+                class="text-red-600"
+                v-for="(err, idx) in formErrors.details"
+                :key="idx"
+              >
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <span class="text-red-600 p-1">{{ err.msg }}</span>
+              </p>
             </div>
           </div>
         </div>
-        <div class="input-container">
-          <label class="input-label"
-            >Select education Level<span class="text-red-600">*</span></label
-          >
-          <div class="input-field-container">
-            <auto-complete-input
-              class="input-field-select"
-              v-model="level"
-              :dataList="['Graduate', 'Post Graduate']"
-            />
-            <div class="error-div" v-if="errMsg.level">
-              <span class="text-red-600"
-                ><i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-              </span>
-              <span class="text-red-600 p-1">{{ errMsg.level }}</span>
-            </div>
-          </div>
+        <button type="submit" v-if="$route.params.id == null">
+          Create Course
+        </button>
+        <button v-if="$route.params.id != null">Save Course</button>
+      </div>
+    </form> -->
+    <form class="row g-3 needs-validation mt-5">
+      <div class="row">
+        <label for="inputStream" class="form-label">Select stream</label>
+        <v-select
+          id="inputStream"
+          class="form-control col-md-8 auto-complete"
+          v-model.trim="$v.stream.$model"
+          :class="{
+            'is-invalid': $v.stream.$error,
+            'is-valid': !$v.stream.$invalid,
+          }"
+          label="stitle"
+          :reduce="(stitle) => stitle.uidStream"
+          :options="streams"
+        />
+        <div class="invalid-feedback alert alert-danger">
+          <p v-if="!$v.stream.required">Stream is required</p>
         </div>
+      </div>
+      <div class="row">
+        <label for="inputTitle" class="form-label">Title of Course</label>
+        <input
+          type="text"
+          class="form-control col-md-8"
+          v-model.trim="$v.title.$model"
+          :class="{
+            'is-invalid': $v.title.$error,
+            'is-valid': !$v.title.$invalid,
+          }"
+          id="inputTitle"
+          placeholder="Science, Commerce, Arts, ..."
+        />
+        <div class="invalid-feedback alert alert-danger">
+          <p v-if="!$v.title.required">Title is required</p>
+          <p v-if="!$v.title.minLength">
+            Title must have at least
+            {{ $v.title.$params.minLength.min }} letters
+          </p>
+          <p v-if="!$v.title.maxLength">
+            Title must have at most {{ $v.title.$params.maxLength.max }} letters
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <label for="inputDetails" class="form-label">Details</label>
+        <textarea
+          class="form-control col-md-8"
+          v-model.trim="$v.details.$model"
+          :class="{
+            'is-invalid': $v.details.$error,
+            'is-valid': !$v.details.$invalid,
+          }"
+          id="inputDetails"
+          placeholder="Main course of all commerce facutlies"
+        />
+        <div class="invalid-feedback alert alert-danger">
+          <p v-if="!$v.details.required">Details is required</p>
+          <p v-if="!$v.details.minLength">
+            Details must have at least
+            {{ $v.details.$params.minLength.min }} letters
+          </p>
+          <p v-if="!$v.details.maxLength">
+            Details must have at most
+            {{ $v.details.$params.maxLength.max }} letters
+          </p>
+        </div>
+      </div>
+      <!-- <div class="row">
+        <label for="inputEducationLevel" class="form-label"
+          >Choose education level</label
+        >
+        <v-select
+          id="inputEducationLevel"
+          class="form-control col-md-8 auto-complete"
+          v-model.trim="$v.educationLevel.$model"
+          :class="{
+            'is-invalid': $v.educationLevel.$error,
+            'is-valid': !$v.educationLevel.$invalid,
+          }"
+          :options="['Undergraduate', 'Postgraduate']"
+        />
+        <div class="invalid-feedback alert alert-danger">
+          <p v-if="!$v.educationLevel.required">Education Level is required</p>
+        </div>
+      </div> -->
+      <div class="col">
+        <!-- <button class="btn btn-primary" type="submit">Submit form</button> -->
         <button
+          class="btn btn-primary"
           type="submit"
+          id="btn-create"
           v-if="$route.params.id == null"
-          @click="createCourse"
+          @click="submitForm"
+          :disabled="submitStatus === 'PENDING'"
         >
           Create Course
         </button>
-        <button v-if="$route.params.id != null" @click="updateCourse">
-          Save Course
+        <button
+          class="btn btn-primary"
+          type="submit"
+          id="btn-update"
+          v-if="$route.params.id != null"
+          @click="submitForm"
+          :disabled="submitStatus === 'PENDING'"
+        >
+          Update Course
         </button>
       </div>
-    </div>
+    </form>
+    <!-- <form>
+      <div class="form-group row">
+        <label for="inputTitle" class="col-sm-4 col-form-label">Title</label>
+        <div class="col-sm-8 justify-content-between">
+          <input
+            type="text"
+            class="form-control"
+            id="inputTitle"
+            placeholder="Science, Commerce, Arts, Law"
+            v-model.trim="$v.title.$model"
+            :class="{
+              'is-invalid': $v.title.$error,
+              'is-valid': !$v.title.$invalid,
+            }"
+          />
+        </div>
+      </div>
+      <div>
+        <div class="col-sm-4  valid-feedback alert alert-success">Title is valid</div>
+        <div class="col-sm-8 invalid-feedback alert alert-danger">
+          <p v-if="!$v.title.required">Title is required</p>
+          <p v-if="!$v.title.minLength">
+            Title must have at least
+            {{ $v.title.$params.minLength.min }} letters
+          </p>
+          <p v-if="!$v.title.maxLength">
+            Title must have at most {{ $v.title.$params.maxLength.max }} letters
+          </p>
+        </div>
+      </div>
+    </form> -->
+    <!-- <form>
+      <div class="form-group row">
+        <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+        <div class="col-sm-10">
+          <input
+            type="text"
+            readonly
+            class="form-control-plaintext"
+            id="staticEmail"
+            value="email@example.com"
+          />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="inputPassword" class="col-sm-2 col-form-label"
+          >Password</label
+        >
+        <div class="col-sm-10">
+          <input
+            type="text"
+            class="form-control"
+            id="inputPassword"
+            placeholder="title"
+            v-model.trim="$v.title.$model"
+            :class="{
+              'is-invalid': $v.title.$error,
+              'is-valid': !$v.title.$invalid,
+            }"
+          />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="inputPas" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+          <div class="col-sm-8 invalid-feedback alert alert-danger">
+            <p v-if="!$v.title.required">Title is required</p>
+            <p v-if="!$v.title.minLength">
+              Title must have at least
+              {{ $v.title.$params.minLength.min }} letters
+            </p>
+            <p v-if="!$v.title.maxLength">
+              Title must have at most
+              {{ $v.title.$params.maxLength.max }} letters
+            </p>
+          </div>
+        </div>
+      </div>
+    </form> -->
   </div>
 </template>
 
 <script>
-import AutoCompleteInput from "../AutoCompleteInput/AutoCompleteInput.vue";
+import { TYPE } from "vue-toastification";
+import { required, minLength, maxLength } from "vuelidate/lib/validators";
+import vSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
+import axios from "axios";
 export default {
-  name: "CourseForm",
+  name: "CourseAdd",
   components: {
-    AutoCompleteInput,
+    vSelect,
   },
-  data() {
+  data: () => {
     return {
       title: "",
       details: "",
       stream: "",
-      level: "",
+      educationLevel: "Undergraduate",
+      submitStatus: null,
       errMsg: [],
       formErrors: {
-        title: [{ id: 0, msg: "" }],
-        details: [{ id: 0, msg: "" }],
+        title: [],
+        details: [],
       },
+      streams: [],
+      streamsOptions: [],
+      fetchedCourse: {},
     };
   },
-  watch: {
-    title(value) {
-      this.title = value;
-      this.validateTitle(value);
+  validations: {
+    title: {
+      required,
+      minLength: minLength(2),
+      maxLength: maxLength(50),
     },
-    details(value) {
-      this.details = value;
-      this.validateDetails(value);
+    details: {
+      required,
+      minLength: minLength(8),
+      maxLength: maxLength(100),
     },
+    stream: {
+      required,
+    },
+    // educationLevel: {
+    //   required,
+    // },
   },
+  // watch: {
+  //   title(value) {
+  //     this.title = value;
+  //     this.validateTitle(value);
+  //   },
+  //   details(value) {
+  //     this.details = value;
+  //     this.validateDetails(value);
+  //   },
+  // },
   methods: {
+    fetchStreams() {
+      axios
+        .get("http://localhost:8080/TheExamAPI_war/api/tstreams")
+        .then((response) => {
+          this.streams = response.data;
+          const result = response.data.map((a) => a.stitle);
+          this.streamsOptions = result;
+        });
+    },
     validateTitle(value) {
       let msg = "";
       let id = 0;
       if (value.length == 0) {
         msg = "Title cannot be empty";
         id = 1;
-        this.errMsg["title"] = msg;
+        // this.errMsg["title"] = msg;
         const found = this.formErrors["title"].some(function (value) {
           return value.id === id;
         });
         if (!found && msg) this.formErrors["title"].push({ id, msg });
-      } else if (value.length < 3) {
+      }
+      if (value.length < 3) {
+        let difference = 3 - value.length;
         msg =
           "Title Must be of minimum 3 characters! " +
           difference +
           " characters left";
-        let difference = 3 - value.length;
         id = 2;
-        this.errMsg["title"] = msg;
+        // this.errMsg["title"] = msg;
         const found = this.formErrors["title"].some(function (value) {
           return value.id === id;
         });
-        if (!found) this.formErrors["title"].push({ id, msg });
+        if (!found && msg) this.formErrors["title"].push({ id, msg });
         // this.errMsg["title"] = msg;
-        this.formErrors["title"].push(msg);
+        // this.formErrors["title"].push(msg);
       } else {
-        this.errMsg["title"] = "";
+        // this.errMsg["title"] = "";
         this.formErrors["title"] = [];
       }
     },
     validateDetails(value) {
       let msg = "";
+      let id = 0;
       if (value.length == 0) {
+        id = 1;
         msg = "Details cannot be empty";
-        this.errMsg["details"] = msg;
-        this.formErrors["details"].push(msg);
-      } else if (value.length < 8) {
+        const found = this.formErrors["details"].some(function (value) {
+          return value.id === id;
+        });
+        if (!found && msg) this.formErrors["details"].push({ id, msg });
+      }
+      if (value.length < 8) {
+        let difference = 8 - value.length;
+        // this.errMsg["details"] = msg;
         msg =
           "Details Must be of minimum 8 characters! " +
           difference +
           " characters left";
-        let difference = 8 - value.length;
-        this.errMsg["details"] = msg;
-        this.formErrors["details"].push(msg);
+        id = 2;
+        const found = this.formErrors["details"].some(function (value) {
+          return value.id === id;
+        });
+        if (!found && msg) this.formErrors["details"].push({ id, msg });
       } else {
-        this.errMsg["details"] = "";
+        // this.errMsg["details"] = "";
         this.formErrors["details"] = [];
       }
     },
+    resetErrors() {
+      this.formErrors = {
+        title: [],
+        details: [],
+      };
+    },
     createCourse() {
+      this.resetErrors();
+      this.validateTitle(this.title);
+      this.validateDetails(this.details);
+      // this.$root.log(this.formErrors);
       const isTitleEmpty = this.title.length == 0;
       const isDetailsEmpty = this.details.length == 0;
-      if (isTitleEmpty) {
-        this.errMsg["title"] = "Title cannot be empty";
-      }
-      if (isDetailsEmpty) {
-        this.errMsg["details"] = "Details cannot be empty";
-      }
+      // if (isTitleEmpty) {
+      //   this.errMsg["title"] = "Title cannot be empty";
+      // }
+      // if (isDetailsEmpty) {
+      //   this.errMsg["details"] = "Details cannot be empty";
+      // }
       if (
         !isTitleEmpty &&
         !isDetailsEmpty &&
@@ -210,19 +436,96 @@ export default {
         this.$root.log("Update API called");
       }
     },
+    submitForm(event) {
+      this.$root.log(this.stream);
+      event.preventDefault();
+      const btnElement = event.target;
+      if (btnElement.id == "btn-create") {
+        this.$v.$touch();
+        if (this.$v.$invalid) {
+          this.submitStatus = "ERROR";
+          this.$toast("Form has errors.Please fill in correct data", {
+            type: TYPE.ERROR,
+            timeout: 4000,
+          });
+        } else {
+          // do your submit logic here
+          axios
+            .post("http://localhost:8080/TheExamAPI_war/api/tcourses", {
+              stitle: this.title,
+              sdetails: this.details,
+              uidStreamFk: {
+                uidStream: this.stream,
+              },
+            })
+            .then((response) => {
+              console.log(response.data);
+            });
+          this.submitStatus = "PENDING";
+          setTimeout(() => {
+            this.submitStatus = "OK";
+            this.$toast("Course created successfully", {
+              type: TYPE.SUCCESS,
+              timeout: 2000,
+            });
+          }, 500);
+        }
+      } else if (btnElement.id == "btn-update") {
+        this.$v.$touch();
+        if (this.$v.$invalid) {
+          this.submitStatus = "ERROR";
+        } else {
+          // do your submit logic here
+
+          axios
+            .put(
+              `http://localhost:8080/TheExamAPI_war/api/tcourses/${this.$route.params.id}`,
+              {
+                stitle: this.title,
+                sdetails: this.details,
+                uidStreamFk: {
+                  uidStream: this.stream,
+                },
+              }
+            )
+            .then((response) => {
+              console.log(response.data);
+            });
+          this.submitStatus = "PENDING";
+          setTimeout(() => {
+            this.submitStatus = "OK";
+            this.$toast("Course updated successfully", {
+              type: TYPE.SUCCESS,
+              timeout: 2000,
+            });
+          }, 500);
+        }
+      }
+    },
   },
   mounted() {
+    this.fetchStreams();
     if (this.$route.params.id != null) {
-      const stream = {
-        stream: "Science",
-        title: "BCom",
-        details: "Bachelor of Commerce degree",
-        level: "Graduate",
-      };
-      this.stream = stream;
-      this.title = stream.title;
-      this.details = stream.details;
-      this.level = stream.level;
+      // const course = {
+      //   title: "Science",
+      //   details: "Main course of all sciences faculties",
+      // };
+      // this.title = course.title;
+      // this.details = course.details;
+      axios
+        .get(
+          `http://localhost:8080/TheExamAPI_war/api/tcourses/${this.$route.params.id}`
+        )
+        .then((response) => {
+          const tCourse = response.data;
+          this.fetchedCourse = tCourse;
+          this.title = tCourse.stitle;
+          this.details = tCourse.sdetails;
+          this.stream = tCourse.uidStreamFk.uidStream;
+        })
+        .catch((error) => {
+          console.error("There was an error!", error);
+        });
     }
   },
 };
@@ -234,9 +537,30 @@ $bg-primary-faded: #dfe7f3;
 $bg-primary-hover: #02409ee3;
 $bg-primary-header: #297fb9d3;
 
+.row {
+  margin-left: 0 !important;
+}
+.row + .row {
+  margin-top: 1rem !important;
+}
+.row > * {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.row input {
+  padding: 0.5rem 1rem !important;
+}
+.row textarea {
+  resize: none;
+  padding: 0.5rem 1rem !important;
+}
+.row .alert {
+  padding: 0.5rem !important;
+}
+
 .header-div {
   display: flex;
-  align-items: center;
+  // align-items: center;
   h1 {
     margin-left: 2rem;
     font-size: 1.5rem;
@@ -264,9 +588,12 @@ $bg-primary-header: #297fb9d3;
   // justify-content: center;
   align-items: center;
 }
+.auto-complete {
+  border: none;
+}
 .input-div {
   margin: 16px 0 16px 0;
-  //   margin-top: 100px;
+  // margin-top: 100px;
   width: 100%;
   //   margin: 0 auto;
   button {
@@ -291,7 +618,7 @@ $bg-primary-header: #297fb9d3;
 .input-container {
   display: flex;
   justify-content: space-between;
-  //   flex-direction: column;
+  // flex-direction: column;
   margin-top: 16px;
 }
 .input-container label {
@@ -334,9 +661,17 @@ $bg-primary-header: #297fb9d3;
 .input-container .input-field-select {
   width: 100%;
 }
-.error-div{
-    background-color: white;
-    padding: 4px 0;
+.error-div {
+  background-color: white;
+  padding: 4px 0;
+}
+
+p {
+  margin: 0 !important;
+}
+.alert {
+  margin: 0.5rem 0;
+  padding: 0.3rem 0.5rem;
 }
 @media screen and (max-width: 768px) {
   .course-add-container {

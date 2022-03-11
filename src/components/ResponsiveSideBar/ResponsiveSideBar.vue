@@ -14,14 +14,18 @@
     </nav>
     <div id="side-menu" class="side-nav" :class="{ sidenavopen: opened }">
       <router-link class="nav-link active-link" to="/">
-        <span> <i class="fa fa-home" aria-hidden="true"></i> </span
-        ><span class="side-link-title">Home</span></router-link
-      >
+        <!-- <span> <i class="fa fa-home" aria-hidden="true"></i> </span
+        ><span class="side-link-title">Home</span> -->
+        Home
+      </router-link>
       <router-link class="nav-link" to="/streams">Streams</router-link>
       <router-link class="nav-link" to="/courses">Courses</router-link>
       <router-link class="nav-link" to="/departments">Departments</router-link>
       <router-link class="nav-link" to="/classes">Classes</router-link>
       <router-link class="nav-link" to="/subjects">Subjects</router-link>
+      <router-link class="nav-link" :to="{ name: 'addQuestionToBank' }"
+        >Add Question</router-link
+      >
     </div>
     <div id="main" :class="{ mainopen: opened }">
       <router-view @pageTitle="setPageTitle" />
@@ -34,7 +38,7 @@ export default {
   name: "ResponsiveSideBar",
   data: () => {
     return {
-      opened: false,
+      opened: true,
       pageTitle: "",
     };
   },
@@ -53,14 +57,16 @@ $bg-primary-faded: #dfe7f3;
 .navbar {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   background-color: $bg-primary-faded;
   overflow: hidden;
   color: #081530;
 }
 .navbar h1 {
   font-size: 1.5rem;
-  margin-left: 6rem;
+  margin-left: 1rem;
   font-weight: bold;
+  margin-top: 8px;
 }
 
 .navbaropen {
@@ -121,7 +127,7 @@ $bg-primary-faded: #dfe7f3;
 
 .sidenavopen {
   height: 100%;
-  width: fit-content;
+  width: 200px;
   position: fixed;
   z-index: 1;
   top: 0;
@@ -139,7 +145,7 @@ $bg-primary-faded: #dfe7f3;
 }
 
 .side-nav a {
-  padding: 10px 32px 10px 8px;
+  padding: 10px 8px 10px 8px;
   text-decoration: none;
   font-size: 1rem;
   font-weight: bold;
@@ -148,7 +154,7 @@ $bg-primary-faded: #dfe7f3;
   border-radius: 4px;
   transition: 0.3s;
   margin-top: 8px;
-  // text-align: center;
+  text-align: center;
 }
 
 .side-nav a:hover {
@@ -187,7 +193,7 @@ $bg-primary-faded: #dfe7f3;
   padding: 20px;
   //   overflow: hidden;
   //   width: auto;
-  margin-left: 250px;
+  margin-left: 200px;
   word-wrap: break-word;
 }
 

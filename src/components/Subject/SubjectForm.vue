@@ -1,13 +1,13 @@
 <template>
-  <div class="stream-add-container">
-    <div class="header-div">
+  <div class="subject-add-container">
+    <div subject="header-div">
       <span>
-        <router-link :to="{ name: 'stream' }">
+        <router-link :to="{ name: 'subject' }">
           <i class="fa fa-arrow-left" aria-hidden="true"></i>
         </router-link>
       </span>
-      <h1 v-if="$route.params.id == null">Add Stream</h1>
-      <h1 v-if="$route.params.id != null">Update Stream</h1>
+      <h1 v-if="$route.params.id == null">Add Subject</h1>
+      <h1 v-if="$route.params.id != null">Update Subject</h1>
     </div>
     <!-- <form class="form-main">
       <div class="input-div">
@@ -75,16 +75,46 @@
           </div>
         </div>
         <button type="submit" v-if="$route.params.id == null">
-          Create Stream
+          Create Course
         </button>
-        <button v-if="$route.params.id != null">Save Stream</button>
+        <button v-if="$route.params.id != null">Save Course</button>
       </div>
     </form> -->
-    <form class="row g-3 needs-validation mt-5" :key="keyCounter">
+    <form class="row g-3 needs-validation mt-5">
       <div class="row">
-        <label for="inputTitle" class="form-label col-md-4"
-          >Title of Stream</label
-        >
+        <label for="inputClass" class="form-label">Select Class</label>
+        <v-select
+          id="inputClass"
+          class="form-control col-md-8 auto-complete"
+          v-model.trim="$v.className.$model"
+          :class="{
+            'is-invalid': $v.className.$error,
+            'is-valid': !$v.className.$invalid,
+          }"
+          :options="['FY CS', 'SY IT', 'TY Physics']"
+        />
+        <div class="invalid-feedback alert alert-danger">
+          <p v-if="!$v.className.required">Class is required</p>
+        </div>
+      </div>
+      <div class="row">
+        <label for="inputSemester" class="form-label">Select semester</label>
+        <v-select
+          id="inputSemester"
+          class="form-control col-md-8 auto-complete"
+          v-model.trim="$v.semester.$model"
+          :class="{
+            'is-invalid': $v.semester.$error,
+            'is-valid': !$v.semester.$invalid,
+          }"
+          :options="[1,2,3,4,5,6,7,8]"
+        />
+        <div class="invalid-feedback alert alert-danger">
+          <p v-if="!$v.semester.required">Semester is required</p>
+        </div>
+      </div>
+      <div class="row">
+        <label for="inputTitle" class="form-label">Title of Subject</label>
         <input
           type="text"
           class="form-control col-md-8"
@@ -108,7 +138,7 @@
         </div>
       </div>
       <div class="row">
-        <label for="inputTitle" class="form-label col-md-4">Details</label>
+        <label for="inputDetails" class="form-label">Details</label>
         <textarea
           class="form-control col-md-8"
           v-model.trim="$v.details.$model"
@@ -116,8 +146,8 @@
             'is-invalid': $v.details.$error,
             'is-valid': !$v.details.$invalid,
           }"
-          id="inputTitle"
-          placeholder="Main stream of all commerce facutlies"
+          id="inputDetails"
+          placeholder="Main department of all commerce facutlies"
         />
         <div class="invalid-feedback alert alert-danger">
           <p v-if="!$v.details.required">Details is required</p>
@@ -127,7 +157,7 @@
           </p>
           <p v-if="!$v.details.maxLength">
             Details must have at most
-            {{ $v.title.$params.maxLength.max }} letters
+            {{ $v.details.$params.maxLength.max }} letters
           </p>
         </div>
       </div>
@@ -141,7 +171,7 @@
           @click="submitForm"
           :disabled="submitStatus === 'PENDING'"
         >
-          Create Stream
+          Create Subject
         </button>
         <button
           class="btn btn-primary"
@@ -151,7 +181,7 @@
           @click="submitForm"
           :disabled="submitStatus === 'PENDING'"
         >
-          Update Stream
+          Update Subject
         </button>
       </div>
     </form>
@@ -240,32 +270,43 @@
 <script>
 import { TYPE } from "vue-toastification";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
-import axios from "axios";
+import vSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
 export default {
-  name: "StreamAdd",
+  name: "SubjectAdd",
+  components: {
+    vSelect,
+  },
   data: () => {
     return {
       title: "",
       details: "",
+      className: "FYCS",
+      semester: 1,
       submitStatus: null,
       errMsg: [],
       formErrors: {
         title: [],
         details: [],
       },
-      keyCounter: 0,
     };
   },
   validations: {
     title: {
       required,
-      minLength: minLength(3),
+      minLength: minLength(2),
       maxLength: maxLength(50),
     },
     details: {
       required,
       minLength: minLength(8),
       maxLength: maxLength(100),
+    },
+    className: {
+      required,
+    },
+    semester: {
+      required,
     },
   },
   // watch: {
@@ -344,7 +385,7 @@ export default {
         details: [],
       };
     },
-    createStream() {
+    createSubject() {
       this.resetErrors();
       this.validateTitle(this.title);
       this.validateDetails(this.details);
@@ -366,7 +407,7 @@ export default {
         this.$root.log("Create API called");
       }
     },
-    updateStream() {
+    updateSubject() {
       const isTitleEmpty = this.title.length == 0;
       const isDetailsEmpty = this.details.length == 0;
       if (
@@ -391,41 +432,13 @@ export default {
           });
         } else {
           // do your submit logic here
-          axios
-            .post("http://localhost:8080/TheExamAPI_war/api/tstreams", {
-              stitle: this.title,
-              sdetails: this.details,
-            })
-            .then((response) => {
-              console.log(response.data);
-            });
-          // fetch("http://localhost:8080/TheExamAPI_war/api/tstreams", {
-          //   method: "POST",
-          //   headers: {
-          //     "Content-Type": "application/json",
-          //   },
-          //   body: {
-          //     uidStream: "1091",
-          //     stitle: this.title,
-          //     sdetails: this.details,
-          //   },
-          // }).then((response) => {
-          //   console.log(response.json());
-          // });
-          // .then((data) => {
-          //   // this.streams = data;
-          //   // const result = data.map((a) => a.stitle);
-          //   // this.streamsOptions = result;
-          //   console.log(data);
-          // });
           this.submitStatus = "PENDING";
           setTimeout(() => {
             this.submitStatus = "OK";
-            this.$toast("Stream created successfully", {
+            this.$toast("Subject created successfully", {
               type: TYPE.SUCCESS,
               timeout: 2000,
             });
-            this.$router.push("/streams");
           }, 500);
         }
       } else if (btnElement.id == "btn-update") {
@@ -434,21 +447,10 @@ export default {
           this.submitStatus = "ERROR";
         } else {
           // do your submit logic here
-          axios
-            .put(
-              `http://localhost:8080/TheExamAPI_war/api/tstreams/${this.$route.params.id}`,
-              {
-                stitle: this.title,
-                sdetails: this.details,
-              }
-            )
-            .then((response) => {
-              console.log(response.data);
-            });
           this.submitStatus = "PENDING";
           setTimeout(() => {
             this.submitStatus = "OK";
-            this.$toast("Stream updated successfully", {
+            this.$toast("Subject updated successfully", {
               type: TYPE.SUCCESS,
               timeout: 2000,
             });
@@ -456,24 +458,15 @@ export default {
         }
       }
     },
-    refreshForm() {
-      this.keyCounter += 1;
-    },
   },
   mounted() {
     if (this.$route.params.id != null) {
-      axios
-        .get(
-          `http://localhost:8080/TheExamAPI_war/api/tstreams/${this.$route.params.id}`
-        )
-        .then((response) => {
-          const stream = response.data;
-          this.title = stream.stitle;
-          this.details = stream.sdetails;
-        })
-        .catch((error) => {
-          console.error("There was an error!", error);
-        });
+      const subject = {
+        title: "Core Java",
+        details: "Core java with all the basics",
+      };
+      this.title = subject.title;
+      this.details = subject.details;
     }
   },
 };
@@ -520,7 +513,7 @@ $bg-primary-header: #297fb9d3;
     border-radius: 4px;
   }
 }
-.stream-add-container {
+.subject-add-container {
   min-height: inherit;
   display: flex;
   flex-direction: column;
@@ -535,6 +528,9 @@ $bg-primary-header: #297fb9d3;
   display: flex;
   // justify-content: center;
   align-items: center;
+}
+.auto-complete {
+  border: none;
 }
 .input-div {
   margin: 16px 0 16px 0;
@@ -619,7 +615,7 @@ p {
   padding: 0.3rem 0.5rem;
 }
 @media screen and (max-width: 768px) {
-  .stream-add-container {
+  .subject-add-container {
     max-width: 80%;
     // margin-left: 100px;
   }

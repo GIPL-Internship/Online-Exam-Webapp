@@ -43,6 +43,26 @@ const routes = [
     path: '/courses/add',
     name: 'addCourse',
     component: () => import('../components/Course/CourseForm.vue')
+  },
+  {
+    path: '/departments/add',
+    name: 'addDepartment',
+    component: () => import('../components/Department/DepartmentForm.vue')
+  },
+  {
+    path: '/classes/add',
+    name: 'addClass',
+    component: () => import('../components/Clas/ClassForm.vue')
+  },
+  {
+    path: '/subjects/add',
+    name: 'addSubject',
+    component: () => import('../components/Subject/SubjectForm.vue')
+  },
+  {
+    path: '/questions/add',
+    name: 'addQuestionToBank',
+    component: () => import('../components/Question/QuestionForm.vue')
   }
 ]
 

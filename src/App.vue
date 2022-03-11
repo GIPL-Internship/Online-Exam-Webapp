@@ -10,11 +10,10 @@
 </template>
 
 <script>
-// import SideBar from './components/SideBar.vue'
-import ResponsiveSideBar from "./components/ResponsiveSideBar/ResponsiveSideBar.vue";
+import ResponsiveSideBar from './components/ResponsiveSideBar/ResponsiveSideBar.vue';
 export default {
   components: {
-    ResponsiveSideBar,
+    ResponsiveSideBar
   },
   created() {
     this.$root.log = function log() {

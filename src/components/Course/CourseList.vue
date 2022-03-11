@@ -1,19 +1,66 @@
 <template>
   <div class="courses-main">
     <div class="courses-search-div">
-      <auto-complete-input
-        :dataList="['BSc', 'BCom', 'BA', 'MSc', 'MCom', 'MA']"
+      <!-- <auto-complete-input :dataList="['BSc','BCom','BA','MSc','MCom','MA']"
+      v-model.trim="course"
+       /> -->
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Type here to search"
+        v-model="searchQuery"
       />
     </div>
     <div class="courses-add-div">
-      <button>
-        <router-link :to="{ name: 'addCourse' }">Add Course</router-link>
+      <button class="btn btn-primary">
+        <router-link
+          class="text-white text-decoration-none"
+          :to="{ name: 'addCourse' }"
+          >Add Course</router-link
+        >
       </button>
     </div>
     <div class="courses-list-div">
       <vue-confirm-dialog></vue-confirm-dialog>
-      <div class="table">
-        <div class="row header blue">
+      <!-- <modal class="add-modal" name="my-first-modal">
+        <div class="modal-container">
+          <div class="header-div">
+            <h1>Add new Stream</h1>
+            <button @click="closeModal">❌</button>
+          </div>
+          <div class="input-div">
+            <div class="input-container">
+              <label class="input-label">Enter title of stream</label>
+              <input type="text" v-model="title" name="title" />
+            </div>
+            <div class="input-container">
+              <label class="input-label">Enter title of stream</label>
+              <input type="text" v-model="title" name="title" />
+            </div>
+            <div class="input-container">
+              <label class="input-label">Enter title of stream</label>
+              <input type="text" v-model="title" name="title" />
+            </div>
+            <div class="input-container">
+              <label class="input-label">Enter details of stream</label>
+              <textarea v-model="details" name="details" rows="10" />
+            </div>
+          </div>
+          <div class="action-div">
+            <button type="submit">Submit</button>
+          </div>
+        </div>
+      </modal> -->
+      <!-- <div class="list-title">
+
+      </div>
+      <div class="list-table">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+      </div> -->
+      <div class="courses-table">
+        <div class="table-row header blue">
           <div class="cell">#</div>
           <div class="cell">Title of Course</div>
           <div class="cell">Details</div>
@@ -21,21 +68,29 @@
           <div class="cell"></div>
         </div>
 
-        <div class="row">
-          <div class="cell" data-title="id">1</div>
-          <div class="cell" data-title="title"><a href="#">BSc</a></div>
+        <div
+          class="table-row"
+          v-for="(course, index) in resultQuery"
+          :key="course.uidCourse"
+        >
+          <div class="cell" data-title="id">{{ index + 1 }}</div>
+          <div class="cell" data-title="title">
+            <a href="#">{{ course.stitle }}</a>
+          </div>
           <div class="cell" data-title="details">
-            Bachelor of Science degree
+            {{ course.sdetails }}
           </div>
           <div class="cell">
-            <router-link :to="{ name: 'addCourse', params: { id: 1342 } }">
+            <router-link
+              :to="{ name: 'addCourse', params: { id: course.uidCourse } }"
+            >
               <span>
                 <box-icon name="edit-alt"></box-icon>
               </span>
             </router-link>
           </div>
           <div class="cell">
-            <button @click="handleClick">
+            <button @click="deleteCourse($event, course.uidCourse)">
               <span>
                 <box-icon name="trash"></box-icon>
               </span>
@@ -43,11 +98,11 @@
           </div>
         </div>
 
-        <div class="row">
+        <!-- <div class="table-row">
           <div class="cell" data-title="id">2</div>
           <div class="cell" data-title="title"><a href="#">BCom</a></div>
           <div class="cell" data-title="details">
-            Bachelor of Commerce degree
+            Bachelor of commerce degree
           </div>
           <div class="cell">
             <span>
@@ -61,10 +116,10 @@
           </div>
         </div>
 
-        <div class="row">
+        <div class="table-row">
           <div class="cell" data-title="id">3</div>
-          <div class="cell" data-title="title"><a href="#">MA</a></div>
-          <div class="cell" data-title="details">Master of Arts degree</div>
+          <div class="cell" data-title="title"><a href="#">BA</a></div>
+          <div class="cell" data-title="details">Bachelor of arts degree</div>
           <div class="cell">
             <span>
               <box-icon name="edit-alt"></box-icon>
@@ -75,27 +130,55 @@
               <box-icon name="trash"></box-icon>
             </span>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
 </template>
 
-
 <script>
-import AutoCompleteInput from "../AutoCompleteInput/AutoCompleteInput.vue";
+// import AutoCompleteInput from "../AutoCompleteInput/AutoCompleteInput.vue";
+import axios from "axios";
 export default {
   name: "CourseList",
   data: () => {
     return {
-      // opened: false,
+      course: "BSc",
+      courses: [],
+      searchQuery: null,
     };
   },
   components: {
-    AutoCompleteInput,
+    // AutoCompleteInput,
+  },
+  computed: {
+    resultQuery() {
+      if (this.searchQuery) {
+        return this.courses.filter((item) => {
+          return this.searchQuery
+            .toLowerCase()
+            .split(" ")
+            .every((v) => item.stitle.toLowerCase().includes(v));
+        });
+      } else {
+        return this.courses;
+      }
+    },
+  },
+  mounted() {
+    this.$emit("pageTitle", "Courses");
+    this.fetchCourses();
   },
   methods: {
-    handleClick() {
+    fetchCourses() {
+      axios
+        .get("http://localhost:8080/TheExamAPI_war/api/tcourses")
+        .then((response) => {
+          this.courses = response.data;
+        });
+    },
+    deleteCourse(event, uid) {
+      event.preventDefault();
       this.$confirm({
         message: `Are you sure want to delete?`,
         button: {
@@ -109,14 +192,19 @@ export default {
         callback: (confirm) => {
           if (confirm) {
             // ... do something
+            axios
+              .delete(
+                `http://localhost:8080/TheExamAPI_war/api/tcourses/${uid}`
+              )
+              .then((response) => {
+                console.log(response.data);
+                this.fetchCourses();
+              });
             console.log("Delete API called");
           }
         },
       });
     },
-  },
-  created() {
-    this.$emit("pageTitle", "Courses");
   },
 };
 </script>
@@ -127,6 +215,9 @@ $bg-primary-faded: #dfe7f3;
 $bg-primary-hover: #02409ee3;
 $bg-primary-header: #297fb9d3;
 
+a {
+  text-decoration: none;
+}
 .courses-main {
   min-height: inherit;
   display: flex;
@@ -182,13 +273,17 @@ $bg-primary-header: #297fb9d3;
     margin-top: 8px;
   }
 }
-
+.vm--overlay.vm--modal {
+  background-color: red !important;
+}
+.modal-container {
+  padding: 16px;
+  // background-color: #f1f1f1;
+  min-height: 100%;
+}
 .header-div {
   display: flex;
   justify-content: space-between;
-}
-.header-div .fa {
-  font-size: 1.2rem;
 }
 .input-div {
   margin: 16px 0 16px 0;
@@ -236,6 +331,10 @@ textarea {
     max-width: 90%;
   }
 }
+.table-row button {
+  outline: none;
+  border: none;
+}
 
 @media screen and (max-width: 768px) {
   // body {
@@ -247,57 +346,57 @@ textarea {
   }
 }
 
-.table {
+.courses-table {
   // margin: 0 0 40px 0;
   width: 100%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   display: table;
 }
 @media screen and (max-width: 580px) {
-  .table {
+  .courses-table {
     display: block;
   }
 }
 
-.row {
+.table-row {
   display: table-row;
   background: #f6f6f6;
 }
-.row a:hover {
+.table-row a:hover {
   color: $bg-primary;
   font-weight: bold;
   transition: all 0.3s ease;
 }
-.row:nth-of-type(odd) {
+.table-row:nth-of-type(odd) {
   background: #e9e9e9;
 }
-.row.header {
+.table-row.header {
   font-weight: 900;
   color: #ffffff;
   // background: #ea6153;
 }
-.row.blue {
+.table-row.blue {
   background: $bg-primary-header;
 }
 .cell span {
   cursor: pointer;
 }
 @media screen and (max-width: 580px) {
-  .row {
+  .table-row {
     padding: 14px 0 7px;
     display: block;
   }
-  .row.header {
+  .table-row.header {
     padding: 0;
     height: 6px;
   }
-  .row.header .cell {
+  .table-row.header .cell {
     display: none;
   }
-  .row .cell {
+  .table-row .cell {
     margin-bottom: 10px;
   }
-  .row .cell:before {
+  .table-row .cell:before {
     margin-bottom: 3px;
     content: attr(data-title);
     min-width: 98px;

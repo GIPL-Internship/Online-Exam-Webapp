@@ -1,12 +1,21 @@
 <template>
   <div class="streams-main">
-    <!-- <h1>Streams</h1> -->
     <div class="streams-search-div">
-      <auto-complete-input :dataList="['Science', 'Commerce', 'Arts']" />
+      <!-- <auto-complete-input :dataList="streamsOptions" /> -->
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Type here to search"
+        v-model="searchQuery"
+      />
     </div>
     <div class="streams-add-div">
-      <button>
-        <router-link :to="{ name: 'addStream' }">Add Stream</router-link>
+      <button class="btn btn-primary">
+        <router-link
+          class="text-white text-decoration-none"
+          :to="{ name: 'addStream' }"
+          >Add Stream</router-link
+        >
       </button>
     </div>
     <div class="streams-list-div">
@@ -48,8 +57,8 @@
         <div class="card"></div>
         <div class="card"></div>
       </div> -->
-      <div class="table">
-        <div class="row header blue">
+      <div class="streams-table">
+        <div class="table-row header blue">
           <div class="cell">#</div>
           <div class="cell">Title of Stream</div>
           <div class="cell">Details</div>
@@ -57,21 +66,29 @@
           <div class="cell"></div>
         </div>
 
-        <div class="row">
-          <div class="cell" data-title="id">1</div>
-          <div class="cell" data-title="title"><a href="#">Science</a></div>
+        <div
+          class="table-row"
+          v-for="(stream, index) in resultQuery"
+          :key="stream.uidStream"
+        >
+          <div class="cell" data-title="id">{{ index + 1 }}</div>
+          <div class="cell" data-title="title">
+            <a href="#">{{ stream.stitle }}</a>
+          </div>
           <div class="cell" data-title="details">
-            The main stream of all science faculties
+            {{ stream.sdetails }}
           </div>
           <div class="cell">
-            <router-link :to="{ name: 'addStream', params: { id: 1342 } }">
+            <router-link
+              :to="{ name: 'addStream', params: { id: stream.uidStream } }"
+            >
               <span>
                 <box-icon name="edit-alt"></box-icon>
               </span>
             </router-link>
           </div>
           <div class="cell">
-            <button @click="handleClick">
+            <button @click="deleteStream($event, stream.uidStream)">
               <span>
                 <box-icon name="trash"></box-icon>
               </span>
@@ -79,7 +96,7 @@
           </div>
         </div>
 
-        <div class="row">
+        <!-- <div class="table-row">
           <div class="cell" data-title="id">2</div>
           <div class="cell" data-title="title"><a href="#">Commerce</a></div>
           <div class="cell" data-title="details">
@@ -97,7 +114,7 @@
           </div>
         </div>
 
-        <div class="row">
+        <div class="table-row">
           <div class="cell" data-title="id">3</div>
           <div class="cell" data-title="title"><a href="#">Arts</a></div>
           <div class="cell" data-title="details">
@@ -113,27 +130,62 @@
               <box-icon name="trash"></box-icon>
             </span>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import AutoCompleteInput from "../AutoCompleteInput/AutoCompleteInput.vue";
+// import AutoCompleteInput from "../AutoCompleteInput/AutoCompleteInput.vue";
+import axios from "axios";
 export default {
   name: "StreamList",
   data: () => {
-    return {};
+    return {
+      streams: [],
+      streamsOptions: [],
+      searchQuery: null,
+    };
   },
   components: {
-    AutoCompleteInput,
+    // AutoCompleteInput,
   },
-  created() {
+  computed: {
+    resultQuery() {
+      if (this.searchQuery) {
+        return this.streams.filter((item) => {
+          return this.searchQuery
+            .toLowerCase()
+            .split(" ")
+            .every((v) => item.stitle.toLowerCase().includes(v));
+        });
+      } else {
+        return this.streams;
+      }
+    },
+  },
+  mounted() {
     this.$emit("pageTitle", "Streams");
+    // fetch("http://localhost:8080/TheExamAPI_war/api/tstreams")
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     this.streams = data;
+    //     const result = data.map((a) => a.stitle);
+    //     this.streamsOptions = result;
+    //   });
+    this.fetchStreams();
   },
   methods: {
-    handleClick() {
+    fetchStreams() {
+      axios
+        .get("http://localhost:8080/TheExamAPI_war/api/tstreams")
+        .then((response) => {
+          this.streams = response.data;
+        });
+    },
+    deleteStream(event, uid) {
+      event.preventDefault();
       this.$confirm({
         message: `Are you sure want to delete?`,
         button: {
@@ -147,6 +199,14 @@ export default {
         callback: (confirm) => {
           if (confirm) {
             // ... do something
+            axios
+              .delete(
+                `http://localhost:8080/TheExamAPI_war/api/tstreams/${uid}`
+              )
+              .then((response) => {
+                console.log(response.data);
+                this.fetchStreams();
+              });
             console.log("Delete API called");
           }
         },
@@ -162,6 +222,9 @@ $bg-primary-faded: #dfe7f3;
 $bg-primary-hover: #02409ee3;
 $bg-primary-header: #297fb9d3;
 
+a {
+  text-decoration: none;
+}
 .streams-main {
   min-height: inherit;
   display: flex;
@@ -275,6 +338,10 @@ textarea {
     max-width: 90%;
   }
 }
+.table-row button {
+  outline: none;
+  border: none;
+}
 
 @media screen and (max-width: 768px) {
   // body {
@@ -286,57 +353,57 @@ textarea {
   }
 }
 
-.table {
+.streams-table {
   // margin: 0 0 40px 0;
   width: 100%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   display: table;
 }
 @media screen and (max-width: 580px) {
-  .table {
+  .streams-table {
     display: block;
   }
 }
 
-.row {
+.table-row {
   display: table-row;
   background: #f6f6f6;
 }
-.row a:hover {
+.table-row a:hover {
   color: $bg-primary;
   font-weight: bold;
   transition: all 0.3s ease;
 }
-.row:nth-of-type(odd) {
+.table-row:nth-of-type(odd) {
   background: #e9e9e9;
 }
-.row.header {
+.table-row.header {
   font-weight: 900;
   color: #ffffff;
   // background: #ea6153;
 }
-.row.blue {
+.table-row.blue {
   background: $bg-primary-header;
 }
 .cell span {
   cursor: pointer;
 }
 @media screen and (max-width: 580px) {
-  .row {
+  .table-row {
     padding: 14px 0 7px;
     display: block;
   }
-  .row.header {
+  .table-row.header {
     padding: 0;
     height: 6px;
   }
-  .row.header .cell {
+  .table-row.header .cell {
     display: none;
   }
-  .row .cell {
+  .table-row .cell {
     margin-bottom: 10px;
   }
-  .row .cell:before {
+  .table-row .cell:before {
     margin-bottom: 3px;
     content: attr(data-title);
     min-width: 98px;
