@@ -26,6 +26,12 @@
       <router-link class="nav-link" :to="{ name: 'addQuestionToBank' }"
         >Add Question</router-link
       >
+      <router-link class="nav-link" :to="{ name: 'createExam' }"
+        >Create Exam</router-link
+      >
+      <router-link class="nav-link" :to="{ name: 'examConfigure' }"
+        >Configure Exam</router-link
+      >
     </div>
     <div id="main" :class="{ mainopen: opened }">
       <router-view @pageTitle="setPageTitle" />

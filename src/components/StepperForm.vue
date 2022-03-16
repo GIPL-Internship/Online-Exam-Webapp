@@ -71,24 +71,35 @@
               class="btn-previous"
             >
               <span>
-              <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                <i class="fa fa-chevron-left" aria-hidden="true"></i>
               </span>
               prevoius
             </button>
-            <button v-if="activeStep < formSteps.length - 1" @click="goNext" 
-            class="btn-next">
+            <button
+              v-if="activeStep < formSteps.length - 1"
+              @click="goNext"
+              class="btn-next"
+            >
               next
               <span>
-              <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                <i class="fa fa-chevron-right" aria-hidden="true"></i>
               </span>
             </button>
-            <button v-if="activeStep === formSteps.length - 1" @click="goDone" class="btn-done">
+            <button
+              v-if="activeStep === formSteps.length - 1"
+              @click="goDone"
+              class="btn-done"
+            >
               done
               <span>
                 <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
               </span>
             </button>
-            <button v-if="activeStep === formSteps.length" @click="submitForm" class="btn-submit">
+            <button
+              v-if="activeStep === formSteps.length"
+              @click="submitForm"
+              class="btn-submit"
+            >
               Create Exam
               <span>
                 <i class="fa fa-plus" aria-hidden="true"></i>
@@ -106,8 +117,6 @@ import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import { VueDatePicker } from "@mathieustan/vue-datepicker";
 import "@mathieustan/vue-datepicker/dist/vue-datepicker.min.css";
-
-
 
 export default {
   name: "StepperForm",
@@ -129,7 +138,7 @@ export default {
         1: {
           0: new Date(),
           1: "Semester",
-          2:90,
+          2: 90,
           3: 100,
           4: 40,
           5: "Active",
@@ -565,13 +574,14 @@ article {
         justify-content: space-around;
         align-items: center;
       }
-      .btn-previous{
+      .btn-previous {
         float: left;
       }
-      .btn-next,.btn-done,.btn-submit{
+      .btn-next,
+      .btn-done,
+      .btn-submit {
         float: right;
       }
-
     }
   }
 }
@@ -610,9 +620,9 @@ article {
     justify-content: space-around;
     // flex-wrap: wrap;
     // margin: 2rem;
-    
-    li{
-      flex:0 0 50%;
+
+    li {
+      flex: 0 0 50%;
     }
 
     p {
@@ -677,7 +687,7 @@ article {
 }
 @media screen and (max-width: 768px) {
   /* STYLES HERE */
-  article{
+  article {
     max-width: 100%;
     // overflow-y:auto ;
     margin-top: 100px;

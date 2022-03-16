@@ -144,7 +144,7 @@ import "vue-select/dist/vue-select.css";
 import { TYPE } from "vue-toastification";
 import axios from "axios";
 export default {
-  name: "QuestionForm",
+  name: "QuestionFormCustom",
   components: {
     vSelect,
   },
@@ -170,11 +170,18 @@ export default {
         correctOption: this.correctOption,
       };
       // console.log(question);
+      const obj = {
+        squestionText: this.questionText,
+        scategory: "MCQ",
+        stag: "CUSTOM",
+        jmarks: this.marks,
+      };
+      console.log(obj);
       axios
         .post("http://localhost:8080/TheExamAPI_war/api/tquestions", {
           squestionText: this.questionText,
           scategory: "MCQ",
-          stag: this.$route.params.tag ? this.$route.params.tag : "PREDEFINED",
+          stag: "CUSTOM",
           jmarks: this.marks,
         })
         .then((response) => {
@@ -195,13 +202,11 @@ export default {
             )
             .then((response) => {
               console.log(response.data);
-              this.$toast.success("Question added successfully", "Success", {
-                type: TYPE.SUCCESS,
-              });
-              if (this.$route.params.tag) {
-                this.$router.push("/exam-configure");
-              }
             });
+
+          this.$toast.success("Question added successfully", "Success", {
+            type: TYPE.SUCCESS,
+          });
         })
         .catch((error) => {
           console.log(error);

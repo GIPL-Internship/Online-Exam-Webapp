@@ -63,6 +63,21 @@ const routes = [
     path: '/questions/add',
     name: 'addQuestionToBank',
     component: () => import('../components/Question/QuestionForm.vue')
+  },
+  {
+    path: '/create-exam',
+    name: 'createExam',
+    component: () => import('../components/ExamCreation/ExamCreationForm.vue')
+  },
+  {
+    path: '/exam-configure',
+    name: 'examConfigure',
+    component: () => import('../components/ExamConfiguration/ExamConfiguration.vue')
+  },
+  {
+    path: '/add-custom-question',
+    name: 'addCustomQuestion',
+    component: () => import('../components/Question/QuestionFormCustom.vue')
   }
 ]
 
