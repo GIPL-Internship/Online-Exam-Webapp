@@ -174,7 +174,7 @@
                 id="inputSubject"
                 class="form-control auto-complete"
                 :value="selected[activeStep]['subject']"
-                @input="setSemesterSelected"
+                @input="setSubjectSelected"
                 :options="suggestionsList[activeStep]['subjectList']"
                 label="stitle"
                 :reduce="(stitle) => stitle.uidSubject"
@@ -192,7 +192,7 @@
               <VueDatePicker
                 id="inputDateOfExam"
                 class="form-control"
-                v-model="selected[activeStep]['dateOfExam']"
+                v-model="dateOfExam"
               />
             </div>
             <div class="input-container">
@@ -200,8 +200,7 @@
               <v-select
                 id="inputExamType"
                 class="form-control auto-complete"
-                :value="selected[activeStep]['examType']"
-                @input="setExamTypeSelected"
+                v-model="examType"
                 :options="suggestionsList[activeStep]['examTypeList']"
               />
             </div>
@@ -224,7 +223,7 @@
                 id="inputTotalMarks"
                 class="form-control"
                 type="number"
-                v-model="selected[activeStep]['totalMarks']"
+                v-model="totalMarks"
               />
             </div>
             <div class="input-container">
@@ -244,7 +243,7 @@
                 id="inputPassingMarks"
                 class="form-control"
                 type="number"
-                v-model="selected[activeStep]['passingMarks']"
+                v-model="passingMarks"
               />
             </div>
           </div>
@@ -266,7 +265,7 @@
                 id="inputExamDuration"
                 class="form-control"
                 type="number"
-                v-model="selected[activeStep]['examDuration']"
+                v-model="examDuration"
               />
             </div>
             <div class="input-container">
@@ -276,8 +275,7 @@
               <v-select
                 id="inputExamStatus"
                 class="form-control auto-complete"
-                :value="selected[activeStep]['examStatus']"
-                @input="setExamStatusSelected"
+                v-model="examStatus"
                 :options="suggestionsList[activeStep]['examStatusList']"
               />
             </div>
@@ -360,14 +358,16 @@ export default {
           className: "SY",
           semester: "Semester 1",
           subject: "Core Java",
+          departmentClassMapping: "",
+          departmentClassMappSemesterMapping: "",
         },
         1: {
           dateOfExam: new Date(),
-          examType: "Semester",
+          examType: "SEMESTER",
           examDuration: 90,
           totalMarks: 100,
           passingMarks: 40,
-          examStatus: "Active",
+          examStatus: "ACTIVE",
         },
       },
       // formModels: {
@@ -386,6 +386,8 @@ export default {
           classNameList: [],
           semesterList: [],
           subjectList: [],
+          departmentClassMapping: [],
+          departmentClassMappSemesterList: [],
         },
         1: {
           0: [
@@ -395,11 +397,22 @@ export default {
             "2022/02/25",
             "2022/02/26",
           ],
-          examTypeList: ["Semester", "UT"],
-          examStatusList: ["Active", "Inactive", "Finished"],
+          examTypeList: ["SEMESTER", "UT"],
+          examStatusList: ["ACTIVE", "INACTIVE", "FINISHED"],
         },
       },
       streams: ["Science", "Commerce", "Arts"],
+      departmentClassMappingList: [],
+      departmentClassMappSemesterList: [],
+      subjectList: [],
+
+      subject: "",
+      dateOfExam: new Date(),
+      examType: "SEMESTER",
+      examDuration: 90,
+      totalMarks: 100,
+      passingMarks: 40,
+      examStatus: "ACTIVE",
       activeStep: 0,
       animation: "animate-in",
       // formInputTitles:{
@@ -534,7 +547,38 @@ export default {
     },
     setClassSelected(value) {
       this.selected[this.activeStep]["className"] = value;
-      this.$root.log((this.selected[this.activeStep]["className"] = value));
+      this.$root.log(this.selected[this.activeStep]["className"]);
+      const obj = this.departmentClassMappingList.filter((item) => {
+        return (
+          item["uidClassFk"]["uidClass"] ==
+            this.selected[this.activeStep]["className"] &&
+          item["uidDepartmentFk"]["uidDepartment"] ==
+            this.selected[this.activeStep]["department"]
+        );
+      });
+      // this.departmentClassMapping = obj["uidDepartmentClassMapping"];
+      console.log("here is", obj);
+      this.selected[this.activeStep]["departmentClassMapping"] =
+        obj[0]["uidDepartmentClassMapping"];
+      this.fetchSemesterByClass();
+    },
+    setSemesterSelected(value) {
+      this.selected[this.activeStep]["semester"] = value;
+      this.$root.log(this.selected[this.activeStep]["semester"]);
+      const obj = this.departmentClassMappSemesterList.filter((item) => {
+        return (
+          item["uidSemesterFk"]["uidSemester"] ==
+          this.selected[this.activeStep]["semester"]
+        );
+      });
+      console.log("here is", obj);
+      this.selected[this.activeStep]["departmentClassMappSemesterMapping"] =
+        obj[0]["uidDepartmentClassMapSemesterMapping"];
+      this.fetchSubjectsBySemester();
+    },
+    setSubjectSelected(value) {
+      this.selected[this.activeStep]["subject"] = value;
+      this.subject = value;
     },
     setExamTypeSelected(value) {
       console.log(value);
@@ -580,6 +624,31 @@ export default {
         });
     },
     fetchClassesByDepartment() {
+      // axios
+      //   .get(
+      //     `http://localhost:8080/TheExamAPI_war/api/tdepartmentclassmappings/tclasses-by-department?departmentUid=${
+      //       this.selected[this.activeStep]["department"]
+      //     }`
+      //   )
+      //   .then((response) => {
+      //     // this.suggestionsList[this.activeStep]["classNameList"] =
+      //     //   response.data;
+      //     // this.$root.log(response.data[0]["uidDepartmentClassMapping"]);
+      //     // this.departmentClassMappingList = response.data;
+      //     response.data.forEach((item) => {
+      //       this.departmentClassMappingList.push(item);
+      //     });
+      //     this.$root.log(this.departmentClassMappingList);
+      //     response.data.forEach((element) => {
+      //       // this.$root.log(response.data);
+      //       this.suggestionsList[this.activeStep]["classNameList"].push(
+      //         element["uidClassFk"]
+      //       );
+      //     });
+      //     // this.$root.log(
+      //     //   this.suggestionsList[this.activeStep]["classNameList"]
+      //     // );
+      //   });
       axios
         .get(
           `http://localhost:8080/TheExamAPI_war/api/tdepartmentclassmappings/tclasses-by-department?departmentUid=${
@@ -587,16 +656,58 @@ export default {
           }`
         )
         .then((response) => {
-          // this.suggestionsList[this.activeStep]["classNameList"] =
-          //   response.data;
-          response.data.forEach((element) => {
-            this.suggestionsList[this.activeStep]["classNameList"].push(
-              element["uidClassFk"]
-            );
+          this.suggestionsList[this.activeStep]["departmentClassMapping"] =
+            response.data;
+
+          response.data.forEach((item) => {
+            this.departmentClassMappingList.push(item);
           });
-          this.$root.log(
-            this.suggestionsList[this.activeStep]["classNameList"]
-          );
+          this.suggestionsList[this.activeStep]["classNameList"] =
+            response.data.map((item) => {
+              return item["uidClassFk"];
+            });
+        });
+    },
+    fetchSemesterByClass() {
+      // this.selected[this.activeStep]["departmentClassMapping"]
+      axios
+        .get(
+          `http://localhost:8080/TheExamAPI_war/api/tdepartmentclassmapsemestermappings/tsemesters-by-class?departmentClassMapUid=${
+            this.selected[this.activeStep]["departmentClassMapping"]
+          }`
+        )
+        .then((response) => {
+          this.suggestionsList[this.activeStep][
+            "departmentClassMappSemesterList"
+          ] = response.data;
+
+          response.data.forEach((item) => {
+            this.departmentClassMappSemesterList.push(item);
+          });
+          this.suggestionsList[this.activeStep]["semesterList"] =
+            response.data.map((item) => {
+              return item["uidSemesterFk"];
+            });
+        });
+    },
+    fetchSubjectsBySemester() {
+      axios
+        .get(
+          `http://localhost:8080/TheExamAPI_war/api/tsubjects/tsubjects-by-semester?semesterUid=${
+            this.selected[this.activeStep]["departmentClassMappSemesterMapping"]
+          }`
+        )
+        .then((response) => {
+          this.suggestionsList[this.activeStep]["subjectList"] = response.data;
+
+          response.data.forEach((item) => {
+            this.subjectList.push(item);
+          });
+          this.$root.log(this.suggestionsList[this.activeStep]["subjectList"]);
+          // this.suggestionsList[this.activeStep]["subjectList"] =
+          //   response.data.map((item) => {
+          //     return item;
+          //   });
         });
     },
     nextStep(last) {
@@ -646,7 +757,22 @@ export default {
     },
     submitForm(event) {
       event.preventDefault();
-      alert(Object.values(this.selected));
+      axios
+        .post("http://localhost:8080/TheExamAPI_war/api/texams", {
+          stitle: `Exam ${this.dateOfExam}`,
+          jtotalMarks: this.totalMarks,
+          jpassingMarks: this.passingMarks,
+          stypeOfExam: this.examType,
+          dtdateOfExam: this.dateOfExam,
+          jduration: this.examDuration,
+          sstatusOfExam: this.examStatus,
+          uidSubjectFk: {
+            uidSubject: this.subject,
+          },
+        })
+        .then((response) => {
+          this.$root.log(response.data);
+        });
     },
     checkFields() {
       let valid = true;
